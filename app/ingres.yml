@@ -1,0 +1,93 @@
+# ---------- app-ns: StockPilot (UI + API) ----------
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: stockpilot-ingress
+  namespace: app-ns
+spec:
+  ingressClassName: traefik
+  rules:
+  - http:
+      paths:
+      - path: /api
+        pathType: Prefix
+        backend:
+          service:
+            name: backend-service
+            port:
+              number: 5000
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: frontend-service
+            port:
+              number: 80
+---
+# ---------- argocd ----------
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: argocd-ingress
+  namespace: argocd
+spec:
+  ingressClassName: traefik
+  rules:
+  - http:
+      paths:
+      - path: /argocd
+        pathType: Prefix
+        backend:
+          service:
+            name: argocd-server
+            port:
+              number: 80
+---
+# ---------- monitoring: Grafana ----------
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: grafana-ingress
+  namespace: monitoring
+spec:
+  ingressClassName: traefik
+  rules:
+  - http:
+      paths:
+      - path: /grafana
+        pathType: Prefix
+        backend:
+          service:
+            name: prometheus-stack-grafana
+            port:
+              number: 80
+---
+# ---------- monitoring: Prometheus (behind basic auth) ----------
+apiVersion: traefik.io/v1alpha1        # older k3s (Traefik v2): traefik.containo.us/v1alpha1
+kind: Middleware
+metadata:
+  name: prom-basic-auth
+  namespace: monitoring
+spec:
+  basicAuth:
+    secret: prom-basic-auth
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: prometheus-ingress
+  namespace: monitoring
+  annotations:
+    traefik.ingress.kubernetes.io/router.middlewares: monitoring-prom-basic-auth@kubernetescrd
+spec:
+  ingressClassName: traefik
+  rules:
+  - http:
+      paths:
+      - path: /prometheus
+        pathType: Prefix
+        backend:
+          service:
+            name: prometheus-stack-kube-prom-prometheus
+            port:
+              number: 9090

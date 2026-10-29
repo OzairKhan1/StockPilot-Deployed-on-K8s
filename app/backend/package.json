@@ -1,0 +1,13 @@
+{
+  "name": "stockpilot-api",
+  "version": "1.0.0",
+  "description": "StockPilot - warehouse inventory API",
+  "main": "server.js",
+  "scripts": { "start": "node server.js" },
+  "engines": { "node": ">=20" },
+  "dependencies": {
+    "express": "^4.19.2",
+    "mongoose": "^7.8.0",
+    "prom-client": "^15.1.0"
+  }
+}

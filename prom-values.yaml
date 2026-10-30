@@ -1,0 +1,10 @@
+grafana:
+  grafana.ini:
+    server:
+      domain: screep.ddns.net
+      root_url: "%(protocol)s://%(domain)s/grafana/"
+      serve_from_sub_path: true
+prometheus:
+  prometheusSpec:
+    routePrefix: /prometheus
+    externalUrl: http://screep.ddns.net/prometheus

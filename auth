@@ -1,0 +1,3 @@
+sudo apt install -y apache2-utils
+htpasswd -c auth admin
+kubectl -n monitoring create secret generic prom-basic-auth --from-file=auth
